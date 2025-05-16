@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"net"
 
 	"github.com/miekg/dns"
 )
@@ -29,6 +30,7 @@ var unboundMutex sync.Mutex
 var listenAddr = flag.String("listen", ":1232", "The address on which to listen for incoming Web requests")
 var unboundAddr = flag.String("unboundAddress", "127.0.0.1:1053", "The address the unbound.conf instructs Unbound to listen on")
 var unboundConfig = flag.String("unboundConfig", "unbound.conf", "The path to the unbound.conf file")
+var unboundConfigNoV6 = flag.String("unboundConfigNoV6", "unbound-noV6.conf", "The path to unbound.conf with IPv6 disabled")
 var unboundExec = flag.String("unboundExec", "unbound", "The path to the unbound executable")
 var indexFile = flag.String("index", "index.html", "The path to index.html")
 
@@ -141,30 +143,42 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	ecs := false
+	if(queryParams.Get("subnet") == "Y") {
+		ecs = true
+	}
+	noV6 := false
+	if(queryParams.Get("noV6") == "Y") {
+		noV6 = true
+	}
 
 	var buf = new(bytes.Buffer)
-	doQuery1(r.Context(), qname, typ, buf)
+	doQuery1(r.Context(), qname, typ, ecs, noV6, buf)
 	idStr := memory.store(buf.Bytes())
 	http.Redirect(w, r, fmt.Sprintf("/m/%s/%s/%s", dns.TypeToString[typ], qname, idStr), http.StatusTemporaryRedirect)
 }
 
-func doQuery1(ctx context.Context, q string, typ uint16, w io.Writer) {
+func doQuery1(ctx context.Context, q string, typ uint16, ecs bool, noV6 bool, w io.Writer) {
 	fmt.Fprintf(w, "Query results for %s %s\n", dns.TypeToString[typ], q)
 	unboundMutex.Lock()
 	defer unboundMutex.Unlock()
-	err := doQuery(ctx, q, typ, w)
+	err := doQuery(ctx, q, typ, ecs, noV6, w)
 	if err != nil {
 		fmt.Fprintf(w, "\n\nError running query: %s\n", err)
 	}
 }
 
-func doQuery(ctx context.Context, q string, typ uint16, w io.Writer) error {
+func doQuery(ctx context.Context, q string, typ uint16, ecs bool, noV6 bool, w io.Writer) error {
 	// Automatically make the query name fully-qualified.
 	if !strings.HasSuffix(q, ".") {
 		q = q + "."
 	}
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	cmd := exec.CommandContext(ctx, *unboundExec, "-d", "-c", *unboundConfig)
+	chosenConf := unboundConfig
+	if(noV6) {
+		chosenConf = unboundConfigNoV6
+	}
+	cmd := exec.CommandContext(ctx, *unboundExec, "-d", "-c", *chosenConf)
 	defer func() {
 		cancel()
 		cmd.Wait()
@@ -199,6 +213,18 @@ func doQuery(ctx context.Context, q string, typ uint16, w io.Writer) error {
 	m.SetQuestion(q, typ)
 	m.AuthenticatedData = true
 	m.SetEdns0(4096, true)
+	if(ecs) {
+		if o := m.IsEdns0(); o != nil {
+			e := new(dns.EDNS0_SUBNET)
+			e.Code = dns.EDNS0SUBNET
+			e.Family = 1 // IPv4
+			e.SourceNetmask = 24
+			e.SourceScope = 30
+			e.Address = net.ParseIP("100.101.102.0").To4()
+			o.Option = append(o.Option, e)
+		}
+	}
+
 	c := new(dns.Client)
 	// The default timeout in the dns package is 2 seconds, which is too short for
 	// some domains. Increase to 30 seconds, limited by the context if applicable.

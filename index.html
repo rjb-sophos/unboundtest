@@ -11,6 +11,7 @@
             margin-left: auto;
             margin-right: auto;
             margin-top: 2em;
+            font-family: Inconsolata, "Andale Mono", "Aptos Mono", monospace;
           }
         </style>
     </head>
@@ -36,10 +37,20 @@
         </p>
         <form action="/q">
           <label for="type">Query type:</label>
-          <input type="radio" name="type" value="CAA" checked="checked">CAA</input>
-          <input type="radio" name="type" value="A">A</input>
+          <input type="radio" name="type" value="A" checked="checked">A</input>
           <input type="radio" name="type" value="AAAA">AAAA</input>
+          <input type="radio" name="type" value="ANY">ANY</input>
+          <input type="radio" name="type" value="CAA">CAA</input>
+          <input type="radio" name="type" value="CNAME">CNAME</input>
           <input type="radio" name="type" value="TXT">TXT</input>
+          <br/>
+          <label for="subnet">Include ECS:</label>
+          <input type="radio" id="subnet" name="subnet" value="N" checked="checked">No client subnet</input>
+          <input type="radio" id="subnet" name="subnet" value="Y">Include a client subnet</input>
+          <br/>
+          <label for="noV6">Use IPv6 if available:</label>
+          <input type="radio" id="noV6" name="noV6" value="N">No</input>
+          <input type="radio" id="noV6" name="noV6" value="Y" checked="checked">Yes</input>
           <br/>
           <label for="qname">Domain:</label>
           <input type="text" name="qname"></input>

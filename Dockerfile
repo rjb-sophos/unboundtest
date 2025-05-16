@@ -22,7 +22,7 @@ RUN apk add \
   libev-dev \
   build-base
 WORKDIR unbound-$UNBOUND_VERSION
-RUN ./configure --enable-fully-static && make
+RUN ./configure --enable-fully-static --enable-subnet && make
 RUN install unbound /usr/sbin/unbound
 
 FROM gcr.io/distroless/base-debian12
@@ -30,7 +30,7 @@ LABEL org.opencontainers.image.source=https://github.com/jsha/unboundtest
 COPY --from=unboundtest /usr/bin/unboundtest /usr/bin/unboundtest
 COPY --from=unbound /usr/sbin/unbound /usr/sbin/unbound
 COPY index.html root.key /work/
-COPY unbound.conf /etc/unbound/
+COPY unbound*.conf /etc/unbound/
 WORKDIR /work/
 EXPOSE 1232
-CMD ["/usr/bin/unboundtest", "-unboundConfig", "/etc/unbound/unbound.conf"]
+CMD ["/usr/bin/unboundtest", "-unboundConfig", "/etc/unbound/unbound.conf","-unboundConfigNoV6", "/etc/unbound/unbound-noV6.conf"]

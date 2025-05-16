@@ -4,6 +4,8 @@ This is a little HTTP server that makes it easy to test DNS lookups without
 running your own Unbound instance, and get detailed logs. Useful for debugging
 DNS issues with Let's Encrypt. See index.html for more details.
 
+THis is a fork of the original unboundtest project from https://github.com/jsha/unboundtest
+
 To run locally:
 
 ```
@@ -31,19 +33,11 @@ Usage of unboundtest:
         The address the unbound.conf instructs Unbound to listen on (default "127.0.0.1:1053")
   -unboundConfig string
         The path to the unbound.conf file (default "unbound.conf")
+  -unboundConfigNoV6
+        The path to an unbound.conf file that disables IPv6, used when that option is selected on the web page (default "unbound-noV6.conf")
   -unboundExec string
         The path to the unbound executable (default "unbound")
   -index string
         The path to the index.html (default "index.html")
+
 ```
-
-## Deploying
-
-This service runs at https://unboundtest.com/, on fly.io. It uses a Docker image
-automatically built in GitHub Actions and pushed to the the GitHub Container
-Registry. The build is kicked off by pushes to the `main` branch, and pushes
-the image to a `latest` tag. See .github/workflows.
-
-Once a set of changes is pushed and the latest image is built, if you have the
-correct permissions (to jsha's Fly account), run `flyctl deploy` to redeploy the
-service.
