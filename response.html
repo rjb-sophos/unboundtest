@@ -1,0 +1,66 @@
+<!doctype html>
+<HTML>
+<HEAD>
+	      <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Check DNS results from Unbound - {{.Domain}}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body {
+            max-width: 140em;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2em;
+            font-family: Inconsolata, "Andale Mono", "Aptos Mono", monospace;
+            text-align: center;
+          }
+          textarea {
+          	max-width: 138em;
+          	width: 94vw;
+          	height: 82vh;
+          	min-heigth: 4em;
+            margin-left: 2vw;
+            margin-right: 2vw;
+            padding: 1em;
+            resize: none;
+          }
+           h1 {
+            margin-top: 1em;
+          }
+        </style>
+</HEAD>
+<BODY onload='onload()'>
+  <H2>Results for {{.QueryType}} query for {{.Domain}}</H2>
+<textarea readonly id="log">
+  {{.Log}}
+</textarea>
+<P id="bottom">
+	<span id="buttonSpan"><button onclick="copylog()" id="copyButton" visble="yes">Copy to clipboard</button><br/></span>Courtesy of rich
+</P>
+</BODY>
+</HTML>
+<script type="application/ecmascript">
+
+  function onload() {
+    if (typeof navigator.clipboard ==="undefined") {
+      document.getElementById('buttonSpan').style.display='none'
+      console.log("No clipboard - hiding the copy button")
+    }
+  }
+
+  function copylog() {
+    var logItem=document.getElementById("log");
+    navigator.clipboard.writeText(logItem.value).then(function() {
+      console.log('Async: Copying to clipboard was successful!');
+    document.getElementById("copyButton").innerText="Copied to clipboard";
+    setTimeout(function() {document.getElementById("copyButton").innerText="Copie to clipboard";
+      setTimeout(function() {document.getElementById("copyButton").innerText="Copi to clipboard";
+        setTimeout(function() {document.getElementById("copyButton").innerText="Copy to clipboard";},500);}, 500);}, 1500);
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+    
+  function resetButton() {
+  }
+  }
+</script>
