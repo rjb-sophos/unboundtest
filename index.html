@@ -13,6 +13,9 @@
             margin-top: 2em;
             font-family: Inconsolata, "Andale Mono", "Aptos Mono", monospace;
           }
+          h1 {
+            margin-top: 1em;
+          }
         </style>
     </head>
     <body>
@@ -36,26 +39,32 @@
         View the <a href="/conf">Unbound config</a>.
         </p>
         <form action="/q">
-          <label for="type">Query type:</label>
-          <input type="radio" name="type" value="A" checked="checked">A</input>
-          <input type="radio" name="type" value="AAAA">AAAA</input>
-          <input type="radio" name="type" value="ANY">ANY</input>
-          <input type="radio" name="type" value="CAA">CAA</input>
-          <input type="radio" name="type" value="CNAME">CNAME</input>
-          <input type="radio" name="type" value="TXT">TXT</input>
-          <br/>
-          <label for="subnet">Include ECS:</label>
-          <input type="radio" id="subnet" name="subnet" value="N" checked="checked">No client subnet</input>
-          <input type="radio" id="subnet" name="subnet" value="Y">Include a client subnet</input>
-          <br/>
-          <label for="noV6">Use IPv6 if available:</label>
-          <input type="radio" id="noV6" name="noV6" value="N">No</input>
-          <input type="radio" id="noV6" name="noV6" value="Y" checked="checked">Yes</input>
-          <br/>
-          <label for="qname">Domain:</label>
-          <input type="text" name="qname"></input>
-          <button id=submit>Query</button>
-        </form>
+        <table><tbody><tr><td>
+                  <label for="type">Query type:</label>
+        </td><td><input type="radio" name="type" value="A" checked="checked">A
+                  <input type="radio" name="type" value="AAAA">AAAA
+                  <input type="radio" name="type" value="ANY">ANY
+                  <input type="radio" name="type" value="CAA">CAA
+                  <input type="radio" name="type" value="CNAME">CNAME
+                  <input type="radio" name="type" value="MX">MX
+                  <input type="radio" name="type" value="TXT">TXT          
+        </td></tr>
+                  
+                  <tr><td><label for="subnet">Include ECS:</label></td><td>
+                  <input type="radio" id="subnet" name="subnet" value="N" checked="checked">No client subnet
+        </td></tr><tr><td></td><td><input type="radio" id="subnet" name="subnet" value="Y">Include a client subnet
+                  </td></tr><tr><td></td><td><input type="radio" id="subnet" name="subnet" value="0">Include subnet 0.0.0.0/0</td></tr><tr><td>
+                  <label for="noV6">Use IPv6 if available:</label></td><td>
+                  <input type="radio" id="noV6" name="noV6" value="N">No
+                  <input type="radio" id="noV6" name="noV6" value="Y" checked="checked">Yes
+                  </td></tr>
+            <tr><td>
+                  <label for="qname">Domain:</label></td><td>
+                  <input type="text" name="qname">
+                  <button id="submit">Query</button>
+                </td></tr>
+        </tbody></table>
+                </form>
         <script type="text/javascript">
         </script>
     </body>
